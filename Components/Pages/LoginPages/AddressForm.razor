@@ -1,0 +1,44 @@
+﻿@rendermode InteractiveServer
+
+@using CanineConnect.Data
+@using CanineConnect.Models
+@using Microsoft.AspNetCore.Mvc
+@using Microsoft.EntityFrameworkCore
+
+
+<h4 class="text-center">Address Information</h4>
+
+<div class="mb-3">
+    <label for="street" class="form-label">Street:</label>
+    <InputText id="street" @bind-Value="EditableAddress.Street" class="form-control" aria-required="true" />
+    <ValidationMessage For="() => EditableAddress.Street" class="text-danger" />
+</div>
+
+<div class="mb-3">
+    <label for="city" class="form-label">City:</label>
+    <InputText id="street" @bind-Value="EditableAddress.City" class="form-control" aria-required="true" />
+    <ValidationMessage For="() => EditableAddress.City" class="text-danger" />
+</div>
+
+<div class="mb-3">
+    <label for="state" class="form-label">State:</label>
+    <InputText id="state" @bind-Value="EditableAddress.State" class="form-control" aria-required="true" />
+    <ValidationMessage For="() => EditableAddress.State" class="text-danger" />
+</div>
+
+<div class="mb-3">
+    <label for="postalcode" class="form-label">Postal Code:</label>
+    <InputText id="postalcode" @bind-Value="EditableAddress.PostalCode" class="form-control" aria-required="true" />
+    <ValidationMessage For="() => EditableAddress.PostalCode" class="text-danger" />
+</div>
+
+<div class="mb-3">
+    <label for="country" class="form-label">Country:</label>
+    <InputText id="country" @bind-Value="EditableAddress.Country" class="form-control" aria-required="true" />
+    <ValidationMessage For="() => EditableAddress.Country" class="text-danger" />
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public required Address EditableAddress { get; set; }
+}

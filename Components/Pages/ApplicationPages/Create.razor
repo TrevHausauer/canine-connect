@@ -1,0 +1,70 @@
+﻿@page "/applications/create/{DogID:int}"
+@using Microsoft.EntityFrameworkCore
+@using CanineConnect.Models
+@using StateObjects
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+@inject NavigationManager NavigationManager
+@inject State state
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Application</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Application" OnValidSubmit="AddApplication" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="salary" class="form-label">Salary:</label> 
+                <InputNumber id="salary" @bind-Value="Application.Salary" class="form-control" /> 
+                <ValidationMessage For="() => Application.Salary" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="numb_of_animals" class="form-label">Number of Pets:</label> 
+                <InputNumber id="numb_of_animals" @bind-Value="Application.Animals" class="form-control" /> 
+                <ValidationMessage For="() => Application.Animals" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="dependents" class="form-label">Dependents:</label> 
+                <InputNumber id="dependents" @bind-Value="Application.Dependents" class="form-control" /> 
+                <ValidationMessage For="() => Application.Dependents" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/applications">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Application Application { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    [Parameter]
+    public int? DogID { get; set; }
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    protected override async Task OnInitializedAsync()
+    {
+        Application.DogListingId = (int) DogID;
+        Application.UserId = state.ActiveUser.Id;
+        
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task AddApplication()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Application.Timestamp = DateTime.Now;
+        context.Application.Add(Application);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/applications");
+    }
+}

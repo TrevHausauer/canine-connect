@@ -1,0 +1,107 @@
+﻿@rendermode InteractiveServer
+
+@using CanineConnect.Data
+@using CanineConnect.Models
+@using CanineConnect.StateObjects
+@using Microsoft.EntityFrameworkCore
+
+@inject NavigationManager NavigationManager
+@inject IDbContextFactory<CanineConnectContext> DbContextFactory
+@inject State state
+
+<div class="container">
+    <form>
+        <div class="card">
+            <EditForm class="card-body" method="post" Model="shelter" OnValidSubmit="HandleRegister" FormName="create" Enhance>
+                <DataAnnotationsValidator />
+                <ShelterForm shelter="shelter" />
+                <AddressForm EditableAddress="shelter.User.HomeAddress" />
+
+                @if (!state.IsUser())
+                {
+                    <UserForm user="shelter.User" />
+                    <CredentialForm user="shelter.User" />
+                }
+
+                <!-- Submit button -->
+                <button type="submit" class="btn btn-primary">Register</button>
+            </EditForm>
+        </div>
+
+        <!--Sign in error message-->
+        @if (errorMsg != null)
+        {
+            <div class="alert alert-warning" role="alert">
+                @errorMsg
+            </div>
+        }
+
+        <!-- Register buttons -->
+        <div class="text-center mt-4">
+            <p>Already a member? <a href="/login">Login</a></p>
+            <p>Registering a user? <a href="/signup/user">Register</a></p>
+        </div>
+    </form>
+</div>
+
+@code {
+    [Parameter]
+    public string? redirect { get; set; }
+
+    [Parameter, EditorRequired]
+    public Shelter? shelter { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        if (state.IsUser())
+        {
+            shelter.User = state.ActiveUser;
+        }
+        else if (shelter.User is null)
+        {
+            shelter.User = new User();
+        }
+
+        if (shelter.User?.HomeAddress is null)
+        {
+            shelter.User.HomeAddress = new Address();
+        }
+
+        return base.OnInitializedAsync();
+    }
+
+    string? errorMsg;
+
+    private async Task HandleRegister()
+    {
+        Authentication authentication = new Authentication(DbContextFactory);
+
+        try
+        {
+            if (!state.IsUser())
+            {
+                await authentication.RegisterUser(shelter.User);
+            }
+
+            await authentication.RegisterShelter(shelter);
+            state.ActiveUser = shelter.User;
+            state.ActiveShelter = shelter;
+            errorMsg = null;
+
+            if (redirect is not null)
+            {
+                NavigationManager.NavigateTo(redirect);
+            }
+        }
+        catch (ArgumentException ex)
+        {
+            errorMsg = ex.Message.ToString();
+        }
+        catch (Exception ex)
+        {
+            // errorMsg = "System Error";
+            errorMsg = ex.Message.ToString();
+
+        }
+    }
+}

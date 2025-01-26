@@ -1,0 +1,91 @@
+﻿@page "/profile/shelter/{ShelterID:int}"
+
+@using CanineConnect.Data
+@using Models
+@using StateObjects
+@using Microsoft.EntityFrameworkCore
+
+@inject IDbContextFactory<CanineConnectContext> DbContextFactory
+@inject State state
+
+<h3 class="text-center text-forestgreen">Shelter Profile</h3>
+
+<div class="container mx-auto md-col-8">
+    @if (shelter is not null)
+    {
+        <h3>@shelter.ShelterName</h3>
+
+        <hr />
+
+        <h4>Contact Information</h4>
+        <ul>
+            <li>Email: @shelter.User?.Email</li>
+
+            @if (shelter.User?.Phone is not null)
+            {
+                <li>Phone: @shelter.User?.Phone</li>
+            }
+            @if (shelter.FacebookURL is not null)
+            {
+                <li>Facebook: <a href="@shelter.FacebookURL">@shelter.FacebookURL</a></li>
+            }
+            @if (shelter.TwitterURL is not null)
+            {
+                <li>Facebook: <a href="@shelter.TwitterURL">@shelter.TwitterURL</a></li>
+            }
+            @if (shelter.InstagramURL is not null)
+            {
+                <li>Facebook: <a href="@shelter.InstagramURL">@shelter.InstagramURL</a></li>
+            }
+            @if (shelter.WebsiteURL is not null)
+            {
+                <li>Facebook: <a href="@shelter.WebsiteURL">@shelter.WebsiteURL</a></li>
+            }
+
+            <li>Owner: <a href="/profile/user/@shelter.UserId">@shelter.User.FirstName @shelter.User.LastName</a></li>
+        </ul>
+
+        <h4>Shelter Address Information</h4>
+        <ul>
+            <li>Street: @shelter.User?.HomeAddress?.Street</li>
+            <li>City: @shelter.User?.HomeAddress?.City</li>
+            <li>State: @shelter.User?.HomeAddress?.State</li>
+            <li>Country: @shelter.User?.HomeAddress?.Country</li>
+            <li>Postal Code: @shelter.User?.HomeAddress?.PostalCode</li>
+            <li>Country: @shelter.User?.HomeAddress?.Country</li>
+        </ul>
+    }
+    else
+    {
+        <h3>Shelter Profile Not Loaded</h3>
+    }
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    [Parameter]
+    public int? ShelterID { get; set; }
+
+    private Shelter? shelter;
+
+    private bool activeShelter = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        using (var context = await DbContextFactory.CreateDbContextAsync())
+        {
+            shelter = await context.Shelter
+                .Where(e => e.Id == ShelterID)
+                .Include(e => e.User)
+                .Include(e => e.User.HomeAddress)
+                .FirstOrDefaultAsync();
+
+            if (shelter is not null)
+            {
+                activeShelter = (state.IsShelter()) ? shelter.Id == state?.ActiveShelter?.Id : false;
+            }
+        }
+
+        await base.OnInitializedAsync();
+    }
+}

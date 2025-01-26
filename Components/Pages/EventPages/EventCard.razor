@@ -1,0 +1,45 @@
+﻿@rendermode InteractiveServer
+
+@using Models
+@using StateObjects
+@inject State state
+
+<div class="card rounded">
+    <div class="card-header bg-white">
+        <h3 class="card-title">@ScheduledEvent.Name</h3>
+    </div>
+    <div class="card-body bg-light">
+        <div class="card-text text-muted">
+            <p><strong class="text-forestgreen">Date: </strong>@date</p>
+            <p><strong class="text-forestgreen">Time: </strong>@time</p>
+            <p><strong class="text-forestgreen">Location: </strong>@location</p>
+            <p><strong class="text-forestgreen">Host Shelter: </strong>@host</p>
+            <p>@ScheduledEvent.Description</p>
+        </div>
+
+        @if (state.IsUser())
+        {
+            <a href="/sendmessage/@ScheduledEvent.Host.UserId"><button class="btn btn-forestgreen p-2">Message Shelter</button></a>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public required EventPost ScheduledEvent { get; set; }
+
+    string date = "";
+    string time = "";
+    string location = "";
+    string host = "";
+
+    protected override void OnInitialized()
+    {
+        date = ScheduledEvent.Date?.ToString("MMMM dd, yyyy");
+        time = ScheduledEvent.Time?.ToString("hh:mm tt");
+        location = $"{ScheduledEvent.Location?.Street}, {ScheduledEvent.Location?.City}, {ScheduledEvent.Location?.State}, {ScheduledEvent.Location?.PostalCode} {ScheduledEvent.Location?.Country}";
+        host = ScheduledEvent.Host.ShelterName;
+
+        base.OnInitialized();
+    }
+}

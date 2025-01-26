@@ -1,0 +1,92 @@
+﻿@page "/admin/users/create"
+@using Microsoft.EntityFrameworkCore
+@using CanineConnect.Models
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>User</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="User" OnValidSubmit="AddUser" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert" />
+            <div class="mb-3">
+                <label for="firstname" class="form-label">FirstName:</label>
+                <InputText id="firstname" @bind-Value="User.FirstName" class="form-control" aria-required="true" />
+                <ValidationMessage For="() => User.FirstName" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="lastname" class="form-label">LastName:</label>
+                <InputText id="lastname" @bind-Value="User.LastName" class="form-control" aria-required="true" />
+                <ValidationMessage For="() => User.LastName" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <InputText id="email" @bind-Value="User.Email" class="form-control" aria-required="true" />
+                <ValidationMessage For="() => User.Email" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="age" class="form-label">Age:</label>
+                <InputDate id="age" @bind-Value="User.Age" class="form-control" aria-required="true" />
+                <ValidationMessage For="() => User.Age" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password:</label>
+                <InputText id="password" @bind-Value="User.Password" class="form-control" aria-required="true" />
+                <ValidationMessage For="() => User.Password" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="phone" class="form-label">Phone:</label>
+                <InputText id="phone" @bind-Value="User.Phone" class="form-control" />
+                <ValidationMessage For="() => User.Phone" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="homeaddressid" class="form-label">HomeAddressId:</label>
+                <InputNumber id="homeaddressid" @bind-Value="User.HomeAddressId" class="form-control" aria-required="true" />
+                <ValidationMessage For="() => User.HomeAddressId" class="text-danger" />
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+
+    @if (errorMsg != null)
+    {
+        <div class="alert alert-warning" role="alert">
+            @errorMsg
+        </div>
+    }
+</div>
+
+<div>
+    <a href="/admin/users">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private User User { get; set; } = new();
+
+    string? errorMsg = null;
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddUser()
+    {
+        try
+        {
+            using var context = DbFactory.CreateDbContext();
+            context.User.Add(User);
+            await context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMsg = ex.ToString();
+            return;
+        }
+
+        NavigationManager.NavigateTo("/admin/users");
+    }
+}

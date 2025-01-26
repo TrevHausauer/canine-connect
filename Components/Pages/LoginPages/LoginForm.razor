@@ -1,0 +1,83 @@
+﻿@rendermode InteractiveServer
+
+@using CanineConnect.Data
+@using CanineConnect.Models
+@using CanineConnect.StateObjects
+@using Microsoft.EntityFrameworkCore
+
+@inject NavigationManager NavigationManager
+@inject IDbContextFactory<CanineConnectContext> DbContextFactory
+@inject State state
+
+<div class="container">
+    <form>
+        <div class="card">
+            <EditForm class="card-body" Model="@_credential" OnSubmit="@HandleLogin">
+                <!-- Email input -->
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email:</label> 
+                    <InputText id="email" @bind-Value="_credential.Email" class="form-control" aria-required="true"/> 
+                    <ValidationMessage For="() => _credential.Email" class="text-danger" /> 
+                </div>      
+
+                <!-- Password input -->
+                 <div class="mb-3">
+                    <label for="password" class="form-label">Password:</label> 
+                    <InputText type="password" id="password" @bind-Value="_credential.Password" class="form-control" aria-required="true"/> 
+                    <ValidationMessage For="() => _credential.Password" class="text-danger" /> 
+                </div>    
+
+                <!-- Submit button -->
+                <button type="submit" class="btn btn-primary">Login</button>
+            </EditForm>
+        </div>
+
+        <!--Sign in error message-->
+        @if (errorMsg != null)
+        {
+            <div class="alert alert-warning" role="alert">
+                @errorMsg
+            </div>
+        }
+
+        <!-- Register buttons -->
+        <div class="text-center mt-4">
+            <p>Not a member? <a href="/signup">Register</a></p>
+        </div>
+    </form>
+</div>
+
+@code {
+    [Parameter]
+    public string? Redirect { get; set; }
+
+     public class Credential { public string Email { get; set; } = ""; public string Password { get; set; } = ""; }
+    private Credential _credential = new Credential();
+
+    string? errorMsg;
+
+    async Task HandleLogin()
+    {
+        Authentication authentication = new Authentication(DbContextFactory);
+
+        try
+        {
+            state.ActiveUser = await authentication.AuthenticateUser(_credential.Email, _credential.Password);
+            state.ActiveShelter = await authentication.AuthenticateShelter(state.ActiveUser);
+            errorMsg = null;
+
+            if (Redirect is not null)
+            {
+                NavigationManager.NavigateTo(Redirect);
+            }
+        }
+        catch (ArgumentException ex)
+        {
+            errorMsg = ex.Message.ToString();
+        }
+        catch
+        {
+            errorMsg = "System Error";
+        }
+    }
+}

@@ -1,0 +1,69 @@
+﻿@page "/admin/eventposts/create"
+@using Microsoft.EntityFrameworkCore
+@using CanineConnect.Models
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>EventPost</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="EventPost" OnValidSubmit="AddEventPost" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="name" class="form-label">Name:</label> 
+                <InputText id="name" @bind-Value="EventPost.Name" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => EventPost.Name" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="date" class="form-label">Date:</label> 
+                <InputDate id="date" @bind-Value="EventPost.Date" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => EventPost.Date" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="time" class="form-label">Time:</label> 
+                <InputDate Type="InputDateType.Time" id="time" @bind-Value="EventPost.Time" class="form-control" aria-required="true" />
+                <ValidationMessage For="() => EventPost.Time" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="description" class="form-label">Description:</label> 
+                <InputText id="description" @bind-Value="EventPost.Description" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => EventPost.Description" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="locationid" class="form-label">LocationId:</label> 
+                <InputNumber id="locationid" @bind-Value="EventPost.LocationId" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => EventPost.LocationId" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="hostid" class="form-label">HostId:</label> 
+                <InputNumber id="hostid" @bind-Value="EventPost.HostId" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => EventPost.HostId" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/eventposts">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private EventPost EventPost { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddEventPost()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Event.Add(EventPost);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/admin/eventposts");
+    }
+}

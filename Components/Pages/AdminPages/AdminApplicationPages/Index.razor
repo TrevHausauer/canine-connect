@@ -1,0 +1,42 @@
+﻿@page "/admin/applications"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using CanineConnect.Models
+@using CanineConnect.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="admin/applications/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Application">
+    <PropertyColumn Property="application => application.Approved" />
+    <PropertyColumn Property="application => application.Timestamp" />
+    <PropertyColumn Property="application => application.DogListingId" />
+    <PropertyColumn Property="application => application.UserId" />
+    <PropertyColumn Property="application => application.Salary" />
+    <PropertyColumn Property="application => application.Animals" />
+    <PropertyColumn Property="application => application.Dependents" />
+
+    <TemplateColumn Context="application">
+        <a href="@($"admin/applications/edit?id={application.Id}")">Edit</a> |
+        <a href="@($"admin/applications/details?id={application.Id}")">Details</a> |
+        <a href="@($"admin/applications/delete?id={application.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private CanineConnectContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

@@ -1,0 +1,153 @@
+﻿@page "/admin/doglistings/edit"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using CanineConnect.Models
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>DogListing</h2>
+<hr />
+@if (DogListing is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="DogListing" OnValidSubmit="UpdateDogListing" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert" />
+                <input type="hidden" name="DogListing.Id" value="@DogListing.Id" />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <InputText id="name" @bind-Value="DogListing.Name" class="form-control" aria-required="true" />
+                    <ValidationMessage For="() => DogListing.Name" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="sex" class="form-label">Sex:</label>
+                    <InputText id="sex" @bind-Value="DogListing.Sex" class="form-control" aria-required="true" />
+                    <ValidationMessage For="() => DogListing.Sex" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="weight" class="form-label">Weight:</label>
+                    <InputNumber id="weight" @bind-Value="DogListing.Weight" class="form-control" />
+                    <ValidationMessage For="() => DogListing.Weight" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="breed" class="form-label">Breed:</label>
+                    <InputText id="breed" @bind-Value="DogListing.Breed" class="form-control" />
+                    <ValidationMessage For="() => DogListing.Breed" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="age" class="form-label">Age:</label>
+                    <InputDate id="age" @bind-Value="DogListing.Age" class="form-control" />
+                    <ValidationMessage For="() => DogListing.Age" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="avaliable" class="form-label">Avaliable:</label>
+                    <InputCheckbox id="avaliable" @bind-Value="DogListing.Avaliable" class="form-check-input" />
+                    <ValidationMessage For="() => DogListing.Avaliable" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description:</label>
+                    <InputText id="description" @bind-Value="DogListing.Description" class="form-control" />
+                    <ValidationMessage For="() => DogListing.Description" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="thumbnail">Thumbnail Image:</label>
+                    <InputFile OnChange="@HandleFileChange" accept=".jpg,.png" />
+                </div>
+                <div class="mb-3">
+                    <label for="shelterid" class="form-label">ShelterId:</label>
+                    <InputNumber id="shelterid" @bind-Value="DogListing.ShelterId" class="form-control" aria-required="true" />
+                    <ValidationMessage For="() => DogListing.ShelterId" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/admin/doglistings">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private DogListing? DogListing { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        DogListing ??= await context.DogListing.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (DogListing is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateDogListing()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(DogListing!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!DogListingExists(DogListing!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/admin/doglistings");
+    }
+
+    private bool DogListingExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.DogListing.Any(e => e.Id == id);
+    }
+
+    private async Task HandleFileChange(InputFileChangeEventArgs e)
+    {
+        List<IBrowserFile> loadedFiles = new List<IBrowserFile>();
+
+        foreach (var file in e.GetMultipleFiles(1))
+        {
+            var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+
+            await using var fs = new FileStream(path, FileMode.Create);
+
+            await file.OpenReadStream(file.Size).CopyToAsync(fs);
+
+            var bytes = new byte[file.Size];
+
+            fs.Position = 0;
+            await fs.ReadAsync(bytes);
+
+            fs.Close();
+            File.Delete(path);
+
+            DogListing.ThumbnailImage = bytes;
+        }
+    }
+}

@@ -1,0 +1,182 @@
+﻿@page "/faq"
+
+<style>
+    details[open] summary svg {
+        rotate: 45deg;
+    }
+
+    .mb-8 {
+        margin: 10px auto;
+        font-weight: bold;
+        text-align: center;
+        max-width: 1100px;
+    }
+
+    h1 {
+        margin: 40px auto;
+        padding: 20px;
+        font-size: 2.5rem;
+        text-align: center;
+        color: forestgreen;
+    }
+
+    .question {
+        max-width: 1100px;
+        text-align: center;
+        margin: auto;
+    }
+</style>
+<br />
+<section class="faq-section">
+    <h2 class="text-success text-center mb-2">FAQ</h2>
+    <p class="mb-8">Have questions? Explore our Frequently Asked Questions section for quick answers. If your question isn't answered, feel free to reach out to our helpful support team!</p>
+    <div class="question">
+        <details class="bg-gray-100 border border-gray-100 p-4 space-y-4 open:bg-white">
+            <summary class="flex justify-content-between transition cursor-pointer font-medium">
+                What does your organization do?
+
+                <svg xmlns="http://w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24"
+                     viewBox="0 0 24 24" stroke-width="2"
+                     stroke="currentColor" fill="none" stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M12 5l0 14" />
+                    <path d="M5 12l14 0" />
+                </svg>
+            </summary>
+            <p>
+                Our organization acts as an intermediary between shelters and customers. We provide a streamlined means to adopt dogs from local shelters. Our goal is to promote these dogs to
+                provide a safe haven for dogs that are looking for a loving home. Beyond caring for animals, we look to educate the community about responsible pet ownership.
+            </p>
+        </details>
+    </div>
+    <div class="question">
+        <details class="bg-gray-100 border border-gray-100 p-4 space-y-4 open:bg-white">
+            <summary class="flex justify-content-between transition cursor-pointer font-medium">
+                How can I get involved?
+
+                <svg xmlns="http://w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24"
+                     viewBox="0 0 24 24" stroke-width="2"
+                     stroke="currentColor" fill="none" stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M12 5l0 14" />
+                    <path d="M5 12l14 0" />
+                </svg>
+            </summary>
+            <p>
+                We're always looking for people who want to make a difference. Visit our <a href="/events">Events</a> section to discover ways to volunteer.
+            </p>
+        </details>
+    </div>
+    <div class="question">
+        <details class="bg-gray-100 border border-gray-100 p-4 space-y-4 open:bg-white">
+            <summary class="flex justify-content-between transition cursor-pointer font-medium">
+                How are dogs shipped?
+
+                <svg xmlns="http://w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24"
+                     viewBox="0 0 24 24" stroke-width="2"
+                     stroke="currentColor" fill="none" stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M12 5l0 14" />
+                    <path d="M5 12l14 0" />
+                </svg>
+            </summary>
+            <p>
+                Shipping policies are based on the shelter you adopt from. Contact them for more information.
+            </p>
+        </details>
+    </div>
+    <div class="question">
+        <details class="bg-gray-100 border border-gray-100 p-4 space-y-4 open:bg-white">
+            <summary class="flex justify-content-between transition cursor-pointer font-medium">
+                What are your shipping rates?
+
+                <svg xmlns="http://w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24"
+                     viewBox="0 0 24 24" stroke-width="2"
+                     stroke="currentColor" fill="none" stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M12 5l0 14" />
+                    <path d="M5 12l14 0" />
+                </svg>
+            </summary>
+            <p>
+                Shipping rates are calculated based on your order total and shipping destination. You can see the estimated shipping cost for your order at checkout.
+            </p>
+        </details>
+    </div>
+    <div class="question">
+        <details class="bg-gray-100 border border-gray-100 p-4 space-y-4 open:bg-white">
+            <summary class="flex justify-content-between transition cursor-pointer font-medium">
+                What is the application process?
+
+                <svg xmlns="http://w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24"
+                     viewBox="0 0 24 24" stroke-width="2"
+                     stroke="currentColor" fill="none" stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M12 5l0 14" />
+                    <path d="M5 12l14 0" />
+                </svg>
+            </summary>
+            <p>
+                To apply you would first have to make an account and select your future companion. After an application is approved, a shelter employee will message you about means of payment. From there, the shelter will handle shipping your friend.
+            </p>
+        </details>
+    </div>
+    <div class="question">
+        <details class="bg-gray-100 border border-gray-100 p-4 space-y-4 open:bg-white">
+            <summary class="flex justify-content-between transition cursor-pointer font-medium">
+                What needs to be provided for an approved application?
+
+                <svg xmlns="http://w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24"
+                     viewBox="0 0 24 24" stroke-width="2"
+                     stroke="currentColor" fill="none" stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M12 5l0 14" />
+                    <path d="M5 12l14 0" />
+                </svg>
+            </summary>
+            <p>
+                An approved application must have the following items provided:
+                <br />First Name
+                <br />Last Name
+                <br />Email
+                <br />Address
+                <br />Income Above $2,000/Month
+                <br />Current Number of Pets (1 Pet Per $2,000/Month Income)
+                <br />Dependents
+                <br />At Least 18 Years of Age
+            </p>
+        </details>
+    </div>
+    <div class="question">
+        <details class="bg-gray-100 border border-gray-100 p-4 space-y-4 open:bg-white">
+            <summary class="flex justify-content-between transition cursor-pointer font-medium">
+                What is your organization's privacy policy?
+
+                <svg xmlns="http://w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24"
+                     viewBox="0 0 24 24" stroke-width="2"
+                     stroke="currentColor" fill="none" stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M12 5l0 14" />
+                    <path d="M5 12l14 0" />
+                </svg>
+            </summary>
+            <p>
+                Our organization takes its privacy policy seriously and takes steps to protect and ensure the safety of our supporters.
+                We do not sell or otherwise disclose information about our volunteers or supporters outside of our immediate organization and shelter communication.
+                This policy has no exceptions. We do not sell or exchange your information with any other organizations, public, private or nonprofit.
+            </p>
+        </details>
+    </div>
+
+</section>
+<br />
+@code {
+
+}

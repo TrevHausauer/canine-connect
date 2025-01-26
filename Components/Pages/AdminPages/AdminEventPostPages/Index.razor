@@ -1,0 +1,41 @@
+﻿@page "/admin/eventposts"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using CanineConnect.Models
+@using CanineConnect.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="eventposts/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Event">
+    <PropertyColumn Property="eventpost => eventpost.Name" />
+    <PropertyColumn Property="eventpost => eventpost.Date" />
+    <PropertyColumn Property="eventpost => eventpost.Time" />
+    <PropertyColumn Property="eventpost => eventpost.Description" />
+    <PropertyColumn Property="eventpost => eventpost.LocationId" />
+    <PropertyColumn Property="eventpost => eventpost.HostId" />
+
+    <TemplateColumn Context="eventpost">
+        <a href="@($"admin/eventposts/edit?id={eventpost.Id}")">Edit</a> |
+        <a href="@($"admin/eventposts/details?id={eventpost.Id}")">Details</a> |
+        <a href="@($"admin/eventposts/delete?id={eventpost.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private CanineConnectContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

@@ -1,0 +1,42 @@
+﻿@page "/admin/shelters"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using CanineConnect.Models
+@using CanineConnect.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="shelters/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Shelter">
+    <PropertyColumn Property="shelter => shelter.ShelterName" />
+    <PropertyColumn Property="shelter => shelter.Description" />
+    <PropertyColumn Property="shelter => shelter.FacebookURL" />
+    <PropertyColumn Property="shelter => shelter.InstagramURL" />
+    <PropertyColumn Property="shelter => shelter.TwitterURL" />
+    <PropertyColumn Property="shelter => shelter.WebsiteURL" />
+    <PropertyColumn Property="shelter => shelter.UserId" />
+
+    <TemplateColumn Context="shelter">
+        <a href="@($"admin/shelters/edit?id={shelter.Id}")">Edit</a> |
+        <a href="@($"admin/shelters/details?id={shelter.Id}")">Details</a> |
+        <a href="@($"admin/shelters/delete?id={shelter.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private CanineConnectContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

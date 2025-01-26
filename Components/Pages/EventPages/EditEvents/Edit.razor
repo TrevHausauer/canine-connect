@@ -1,0 +1,122 @@
+﻿@rendermode InteractiveServer
+@page "/events/edit"
+@using CanineConnect.Components.Pages.LoginPages
+@using Microsoft.EntityFrameworkCore
+@using CanineConnect.Models
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+@inject NavigationManager NavigationManager
+@inject State state
+@using CanineConnect.StateObjects
+
+<PageTitle>Edit</PageTitle>
+<div style="padding: 20px">
+ <h1>Edit</h1>
+ <br />
+<h2 style="color: forestgreen">EventPost</h2>
+<hr />
+@if (EventPost is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="EventPost" OnValidSubmit="UpdateEventPost" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="EventPost.Id" value="@EventPost.Id" />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <InputText id="name" @bind-Value="EventPost.Name" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => EventPost.Name" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="date" class="form-label">Date:</label>
+                    <InputDate id="date" @bind-Value="EventPost.Date" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => EventPost.Date" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="time" class="form-label">Time:</label>
+                        <InputDate Type="InputDateType.Time" id="time" @bind-Value="EventPost.Time" class="form-control" aria-required="true" />
+                    <ValidationMessage For="() => EventPost.Time" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description:</label>
+                    <InputText id="description" @bind-Value="EventPost.Description" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => EventPost.Description" class="text-danger" />
+                </div>
+                <h2 style="color: forestgreen">Location Info.</h2>
+                <hr />
+                <AddressForm EditableAddress="EventPost.Location" />
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/events/index">Back to List</a>
+</div>
+</div>
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private EventPost? EventPost { get; set; }
+    List<EventPost> _events = new List<EventPost>();
+    protected override async Task OnInitializedAsync()
+    {
+        using (var context = DbFactory.CreateDbContext())
+        {
+
+            _events = await context.Event
+                .Include(e => e.Location)
+                .ToListAsync();
+            EventPost ??= await context.Event.FirstOrDefaultAsync(m => m.Id == Id);
+        };
+        
+
+        EventPost.HostId = state.ActiveShelter.Id;
+        
+
+        if (EventPost is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+        
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateEventPost()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(EventPost!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!EventPostExists(EventPost!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/events/index");
+    }
+
+    private bool EventPostExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Event.Any(e => e.Id == id);
+    }
+}

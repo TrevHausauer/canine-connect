@@ -1,0 +1,48 @@
+﻿@rendermode InteractiveServer
+
+@using CanineConnect.Data
+@using CanineConnect.Models
+@using Microsoft.EntityFrameworkCore
+
+<h4 class="text-center">Shelter Information</h4>
+
+<!-- Sheltername input -->
+<div data-mdb-input-init class="form-outline mb-4">
+    <label class="form-label" for="sheltername">Shelter Name</label>
+    <input type="text" id="sheltername" class="form-control" @bind="shelter.ShelterName" @bind:event="oninput" />
+</div>
+
+<!-- Description input -->
+<div data-mdb-input-init class="form-outline mb-4">
+    <label class="form-label" for="description">Description</label>
+    <textarea type="text" id="description" class="form-control" @bind="shelter.Description" @bind:event="oninput" rows="5" />
+</div>
+
+<!-- Facebook input -->
+<div data-mdb-input-init class="form-outline mb-4">
+    <label class="form-label" for="facebook">Facebook URL</label>
+    <input type="text" id="facebook" class="form-control" @bind="shelter.FacebookURL" @bind:event="oninput" />
+</div>
+
+<!-- Instagram input -->
+<div data-mdb-input-init class="form-outline mb-4">
+    <label class="form-label" for="instagram">Instagram URL</label>
+    <input type="text" id="instagram" class="form-control" @bind="shelter.InstagramURL" @bind:event="oninput" />
+</div>
+
+<!-- Twitter input -->
+<div data-mdb-input-init class="form-outline mb-4">
+    <label class="form-label" for="twiiter">Twiiter URL</label>
+    <input type="text" id="twitter" class="form-control" @bind="shelter.TwitterURL" @bind:event="oninput" />
+</div>
+
+<!-- Website input -->
+<div data-mdb-input-init class="form-outline mb-4">
+    <label class="form-label" for="website">Website URL</label>
+    <input type="text" id="website" class="form-control" @bind="shelter.WebsiteURL" @bind:event="oninput" />
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public required Shelter shelter { get; set; }
+}

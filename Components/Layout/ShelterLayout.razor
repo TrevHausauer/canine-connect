@@ -1,0 +1,20 @@
+﻿@inherits LayoutComponentBase
+@layout MainLayout
+
+@using StateObjects
+@inject State state
+
+@if (state.IsShelter())
+{
+    <!-- Body -->
+    <div class="my-4 col-md-10 mx-auto">
+        @Body
+    </div>
+}
+else
+{
+    <div class="my-4 col-md-10 mx-auto">
+        <h3>403 Error</h3>
+        <p>Access denied</p>
+    </div>
+}

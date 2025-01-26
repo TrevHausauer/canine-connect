@@ -1,0 +1,224 @@
+﻿@page "/doglistings/"
+
+@rendermode InteractiveServer
+
+@using CanineConnect.Data
+@using Models
+@using Microsoft.EntityFrameworkCore
+@using StateObjects
+
+@inject IDbContextFactory<CanineConnectContext> DbContextFactory
+@inject NavigationManager navigationManager
+@inject State state
+
+
+<style>
+    div.card:hover {
+        border: 1px solid #777;
+    }
+
+    div.card img {
+        width: 100%;
+        height: auto;
+    }
+
+    div.card {
+        padding: 15px;
+        text-align: center;
+    }
+
+    .filter-container {
+        margin-bottom: 20px;
+    }
+
+        .filter-container label {
+            font-weight: bold;
+        }
+
+        .filter-container input,
+        .filter-container select {
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+</style>
+
+<!-- Filter Section -->
+<div class="container filter-container">
+    <form method="get" autocomplete="on">
+        <div class="row justify-content-center">
+            <!-- Sex Filter -->
+            <div class="col-md-2">
+                <label for="Sex">Sex</label>
+                <select name="Sex" id="Sex" class="form-control" value="@Sex">
+                    <option value="">All</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+
+            <!-- Breed Filter -->
+            <div class="col-md-3">
+                <label for="Breed">Breed</label>
+                <input type="text" name="Breed" id="Breed" class="form-control" placeholder="Breed" value="@Breed" />
+            </div>
+
+            <!-- Min Weight Filter -->
+            <div class="col-md-2">
+                <label for="MinWeight">Min Weight</label>
+                <input type="number" name="MinWeight" id="MinWeight" class="form-control" placeholder="Min Weight" value="@MinWeight" />
+            </div>
+
+            <!-- Max Weight Filter -->
+            <div class="col-md-2">
+                <label for="MaxWeight">Max Weight</label>
+                <input type="number" name="MaxWeight" id="MaxWeight" class="form-control" placeholder="Max Weight" value="@MaxWeight" />
+            </div>
+
+            <div class="col-md-3 my-auto">
+                <button type="submit" class="btn btn-forestgreen p-2">Apply Filter</button>
+                <button type="button" class="btn btn-secondary p-2" @onclick="ResetQueryParameters">Reset</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<hr />
+
+@if (state.IsUser() && @state.IsShelter())
+{
+    <div style="padding-top: 20px;padding-right: 20px; float: right">
+        <a class="btn btn-forestgreen p-2" style="font-size: 1.5rem;" href="/doglistings/index">My Dogs</a>
+    </div>
+}
+
+<br />
+
+<h2 class="text-success text-center mb-2">Dog Listings</h2>
+<br />
+
+<!-- Dog Listings -->
+<div class="container-fluid mt-1">
+    <div class="row row-cols-1 row-cols-md-3">
+        @if (_filteredDogs.Count != 0)
+        {
+            @foreach (var dog in _filteredDogs)
+
+            {
+                <div class="col">
+                    <div class="card mb-4 d-flex position-relative">
+                        <div class="card-header">
+                            <h4 class="card-title">@dog.Name</h4>
+                        </div>
+
+                        <div class="card-body">
+                            <ul>
+                                <li><strong class="text-forestgreen">Gender: </strong>@dog.Sex</li>
+                                <li><strong class="text-forestgreen">Weight: </strong>@dog.Weight lbs</li>
+                                <li><strong class="text-forestgreen">Breed: </strong>@dog.Breed</li>
+                                <li><strong class="text-forestgreen">Birthdate: </strong>@dog.Age.ToString("MMMM dd yyyy")</li>
+                                <li>
+                                    <strong class="text-forestgreen">Host Shelter: </strong>
+                                    <a href="/profile/shelter/@dog.ShelterId.ToString()">@dog.Shelter?.ShelterName</a>
+                                </li>
+                                <li><strong class="text-forestgreen">Description: </strong>@dog.Description</li>
+                            </ul>
+
+                            @if (dog.ThumbnailImage is not null)
+                            {
+                                <img class="card-img" src="data:image;base64,@System.Convert.ToBase64String(dog.ThumbnailImage)" />
+                            }
+
+                            <a class="stretched-link" href="/doglistings/@dog.Id"></a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+
+        else
+        {
+            @if(!loading)
+            {
+                <p class="text-center">No dog listings match the current filters.</p>
+
+            }
+        }
+    </div>
+</div>
+
+<br />
+
+@code {
+    [SupplyParameterFromQuery]
+    [Parameter]
+    public string? Breed { get; set; }
+
+    [SupplyParameterFromQuery]
+    [Parameter]
+    public string? Sex { get; set; }
+
+    [SupplyParameterFromQuery]
+    [Parameter]
+    public decimal? MinWeight { get; set; }
+
+    [SupplyParameterFromQuery]
+    [Parameter]
+    public decimal? MaxWeight { get; set; }
+
+    private List<DogListing> _filteredDogs = new List<DogListing>();
+    private bool loading = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        loading = true;
+
+        // Show all dogs initially
+        await ApplyFilter();
+        await base.OnParametersSetAsync();
+
+        loading = false;
+    }
+
+    private async Task ApplyFilter()
+    {
+        using (var context = await DbContextFactory.CreateDbContextAsync())
+        {
+            // Apply filtering logic
+            IQueryable<DogListing> result = context.DogListing.Include(dog => dog.Shelter);
+
+            if (!string.IsNullOrEmpty(Sex))
+            {
+                result = result.Where(dog => dog.Sex == Sex);
+            }
+
+            if (!string.IsNullOrEmpty(Breed))
+            {
+                result = result.Where(dog => dog.Breed != null && dog.Breed.Contains(Breed, StringComparison.CurrentCultureIgnoreCase));
+            }
+
+            if (MaxWeight is not null)
+            {
+                result = result.Where(dog => dog.Weight <= MaxWeight);
+            }
+
+            if (MinWeight is not null)
+            {
+                result = result.Where(dog => dog.Weight >= MinWeight);
+            }
+
+            _filteredDogs = await result.OrderBy(dog => dog.Age).ToListAsync();
+        }
+    }
+
+    private void ResetQueryParameters()
+    {
+        // Get the current URI
+        var uri = new Uri(navigationManager.Uri);
+
+        // Extract the base URL without query parameters
+        var baseUrl = uri.GetLeftPart(UriPartial.Path);
+
+        // Navigate to the base URL
+        navigationManager.NavigateTo(baseUrl, true);
+    }
+}

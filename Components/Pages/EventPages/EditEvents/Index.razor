@@ -1,0 +1,58 @@
+﻿@rendermode InteractiveServer
+@page "/events/index"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using CanineConnect.Models
+@using CanineConnect.Data
+@using CanineConnect.StateObjects
+@using Microsoft.EntityFrameworkCore
+@implements IAsyncDisposable
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+@inject State state
+
+<PageTitle>Your Posted Events</PageTitle>
+<div style="padding: 20px">
+    <h1 class="text-success text-center mb-2">Your Posted Events</h1>
+
+    <p>
+        <a href="events/create">Create New</a>
+    </p>
+
+    <QuickGrid Class="table" Items="events">
+        <PropertyColumn Property="eventpost => eventpost.Name" />
+        <PropertyColumn Property="eventpost => eventpost.Date" />
+        <PropertyColumn Property="eventpost => eventpost.Time" />
+        <PropertyColumn Property="eventpost => eventpost.Description" />
+        <PropertyColumn Property="eventpost => LocationToString(eventpost.Location)" Title="Location" />
+        <PropertyColumn Property="eventpost => eventpost.Host.ShelterName" Title="Host" />
+
+        <TemplateColumn Context="eventpost">
+            <a href="@($"events/edit?id={eventpost.Id}")">Edit</a> |
+            <a href="@($"events/details?id={eventpost.Id}")">Details</a> |
+            <a href="@($"events/delete?id={eventpost.Id}")">Delete</a>
+        </TemplateColumn>
+    </QuickGrid>
+</div>
+@code {
+    private CanineConnectContext context = default!;
+    private IQueryable<EventPost> events = default!;
+
+
+    protected override Task OnInitializedAsync()
+    {
+        context = DbFactory.CreateDbContext();
+        events = context.Event
+            .Where(e => e.Host.User.Id == state.ActiveUser.Id)
+            .Include(e => e.Location)
+            .Include(e => e.Host);
+
+        return base.OnInitializedAsync();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+
+    protected string LocationToString(Address address)
+    {
+        return $"{address.Street}, {address.City}, {address.State}, {address.PostalCode} {address.Country}";
+    }
+}

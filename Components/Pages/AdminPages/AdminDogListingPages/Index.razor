@@ -1,0 +1,44 @@
+﻿@page "/admin/doglistings"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using CanineConnect.Models
+@using CanineConnect.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="admin/doglistings/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.DogListing">
+    <PropertyColumn Property="doglisting => doglisting.Name" />
+    <PropertyColumn Property="doglisting => doglisting.Sex" />
+    <PropertyColumn Property="doglisting => doglisting.Weight" />
+    <PropertyColumn Property="doglisting => doglisting.Breed" />
+    <PropertyColumn Property="doglisting => doglisting.Age" />
+    <PropertyColumn Property="doglisting => doglisting.Avaliable" />
+    <PropertyColumn Property="doglisting => doglisting.Description" />
+    <PropertyColumn Property="doglisting => doglisting.ThumbnailImage" />
+    <PropertyColumn Property="doglisting => doglisting.ShelterId" />
+
+    <TemplateColumn Context="doglisting">
+        <a href="@($"admin/doglistings/edit?id={doglisting.Id}")">Edit</a> |
+        <a href="@($"admin/doglistings/details?id={doglisting.Id}")">Details</a> |
+        <a href="@($"admin/doglistings/delete?id={doglisting.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private CanineConnectContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

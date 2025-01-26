@@ -1,0 +1,87 @@
+﻿@page "/doglistings/{DogID:int}"
+
+@using CanineConnect.Data
+@using Models
+@using Microsoft.EntityFrameworkCore
+
+@inject IDbContextFactory<CanineConnectContext> DbContextFactory
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+/* Create two equal columns that floats next to each other */
+.column {
+  float: right;
+  width: 50%;
+  padding: 10px;
+}
+
+/* Clear floats after the columns */
+.container:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+</style> 
+  
+<h3>Dog Listing</h3>
+
+@if (dog is not null)
+{
+    <div class="container">
+
+            <div class="column">
+            <h4>@dog.Name</h4>
+
+            <ul>
+                <li><strong class="text-forestgreen">Gender: </strong>@dog.Sex</li>
+                <li><strong class="text-forestgreen">Weight: </strong>@dog.Weight lbs</li>
+                <li><strong class="text-forestgreen">Breed: </strong>@dog.Breed</li>
+                <li><strong class="text-forestgreen">Birthdate: </strong>@dog.Age.ToString("MMMM dd yyyy")</li>
+                <li>
+                    <strong class="text-forestgreen">Host Shelter: </strong>
+                    <a href="/profile/shelter/@dog.ShelterId.ToString()">@dog.Shelter?.ShelterName</a>
+                </li>
+                <li><strong class="text-forestgreen">Description: </strong>@dog.Description</li>
+                <!-- Update href to Adoption Page -->
+                <a class="btn btn-forestgreen p-2" style="font-size: 1.5rem" href="/applications/create/@DogID">Adopt</a>
+
+            </ul>
+            </div>
+
+        <div class="column">
+            @if (dog.ThumbnailImage is not null)
+            {
+                <img class="card-img" src="data:image;base64,@System.Convert.ToBase64String(dog.ThumbnailImage)" />
+            }
+        </div>
+    </div>
+    <a href="/applications/create/@DogID"><button class="btn btn-forestgreen p-2">Apply for Dog!</button></a>
+}
+else
+{
+    <h3>No Dog Found</h3>
+}
+
+@code {
+    [SupplyParameterFromQuery]
+    [Parameter]
+    public int? DogID { get; set; }
+
+    private DogListing? dog;
+
+    protected override async Task OnInitializedAsync()
+    {
+        using (var context = await DbContextFactory.CreateDbContextAsync())
+        {
+            dog = await context.DogListing
+                .Include(e => e.Shelter)
+                .Where(e => e.Id == DogID)
+                .FirstOrDefaultAsync();
+        }
+
+        await base.OnInitializedAsync();
+    }
+}

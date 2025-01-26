@@ -1,0 +1,58 @@
+﻿@page "/applications/details"
+@using Microsoft.EntityFrameworkCore
+@using CanineConnect.Models
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Application</h2>
+    <hr />
+    @if (application is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Approved</dt>
+            <dd class="col-sm-10">@application.Approved</dd>
+            <dt class="col-sm-2">Timestamp</dt>
+            <dd class="col-sm-10">@application.Timestamp</dd>
+            <dt class="col-sm-2">DogListingId</dt>
+            <dd class="col-sm-10">@application.DogListingId</dd>
+            <dt class="col-sm-2">UserId</dt>
+            <dd class="col-sm-10">@application.UserId</dd>
+            <dt class="col-sm-2">salary</dt>
+            <dd class="col-sm-10">@application.Salary</dd>
+            <dt class="col-sm-2">numb_of_animals</dt>
+            <dd class="col-sm-10">@application.Animals</dd>
+            <dt class="col-sm-2">dependents</dt>
+            <dd class="col-sm-10">@application.Dependents</dd>
+        </dl>
+        <div>
+            <a href="@($"/applications/edit?id={application.Id}")">Edit</a> |
+            <a href="@($"/applications")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Application? application;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        application = await context.Application.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (application is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

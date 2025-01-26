@@ -1,0 +1,64 @@
+﻿@page "/admin/addresses/create"
+@using Microsoft.EntityFrameworkCore
+@using CanineConnect.Models
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Address</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Address" OnValidSubmit="AddAddress" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="street" class="form-label">Street:</label> 
+                <InputText id="street" @bind-Value="Address.Street" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Address.Street" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="city" class="form-label">City:</label> 
+                <InputText id="city" @bind-Value="Address.City" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Address.City" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="state" class="form-label">State:</label> 
+                <InputText id="state" @bind-Value="Address.State" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Address.State" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="postalcode" class="form-label">PostalCode:</label> 
+                <InputText id="postalcode" @bind-Value="Address.PostalCode" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Address.PostalCode" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="country" class="form-label">Country:</label> 
+                <InputText id="country" @bind-Value="Address.Country" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Address.Country" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/admin/addresses">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Address Address { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddAddress()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Address.Add(Address);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/admin/addresses");
+    }
+}

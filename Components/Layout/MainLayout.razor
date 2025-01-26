@@ -1,0 +1,29 @@
+﻿@inherits LayoutComponentBase
+
+<head>
+    <link rel="stylesheet" type="text/css" href="/bootstrap/main.css">
+    <link rel="stylesheet" type="text/css" href="/my-colors.css">
+</head>
+
+<div class="page">
+
+    <main>
+        <!--Navbar-->
+        <Navbar />
+
+        <!-- Body -->
+        <div class="my-4">
+            @Body
+        </div>
+
+        <!-- FOOTER -->
+        <Footer />
+    </main>
+</div>
+
+<!-- Was here before I changed anything so I left it. Not completely sure what it does. -->
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>

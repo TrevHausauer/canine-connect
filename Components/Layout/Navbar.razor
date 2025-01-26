@@ -1,0 +1,97 @@
+﻿@rendermode InteractiveServer
+
+@using CanineConnect.StateObjects
+@inject State state
+@inject NavigationManager navigationManager
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <!-- Logo/Name -->
+        <div class="col-md-4 navbar-brand mb-2 mb-lg-0">
+            <a href="#"><img src="Images/Canine Connect Logo.png" alt="Avatar Logo" style="width: 400px; border-radius: 20px;"> </a>
+
+        </div>
+
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 col-md-6">
+            <!-- Tab 2 -->
+            <li class="nav-item">
+                <a class="nav-link" href="/doglistings">Dog Listings</a>
+            </li>
+            <!-- Tab 3 -->
+            <li class="nav-item">
+                <a class="nav-link" href="/events">Events</a>
+            </li>
+            <!-- Tab 4 -->
+            <li class="nav-item">
+                <a class="nav-link" href="/faq">FAQ</a>
+            </li>
+        </ul>
+    </div>
+
+    @if (!state.IsUser())
+    {
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 col-md-2">
+            <!-- Tab 5 -->
+            <li class="nav-item">
+                <a class="nav-link" href="/signup/user"> Sign Up</a>
+            </li>
+            <!-- Tab 6 -->
+            <li class="nav-item">
+                <a class="nav-link" href="/login"> Login</a>
+            </li>
+        </ul>
+    } else
+    {
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" id="profileDropdown" role="button" @onclick="ToggleDropdown" aria-expanded="@dropdownVisible.ToString()">
+                    @state.ActiveUser?.Email
+                </a>
+
+                <ul class="dropdown-menu" aria-labelledby="profileDropdown" style="@dropdownStyle">
+                    <li><a class="dropdown-item" href="/profile/user/@state?.ActiveUser.Id.ToString()">Profile</a></li>
+                    <li><a class="dropdown-item" href="/messages">Messages</a></li>
+                    <li><a class="dropdown-item" href="/applications">Applications</a></li>
+
+
+                    @if (state.IsAdmin())
+                    {
+                        <li><a class="dropdown-item" href="/admin">Admin</a></li>
+                    }
+
+                    @if (state.IsShelter())
+                    {
+                        <li><a class="dropdown-item" href="/profile/shelter/@state?.ActiveShelter.Id.ToString()">Shelter</a></li>
+                    } 
+                    <li><button class="dropdown-item" @onclick="SignOut">Sign Out</button></li>
+                </ul>
+            </li>
+        </ul>
+    }
+</nav>
+
+@code {
+    protected override void OnInitialized()
+    {
+        state.Notify += () => InvokeAsync(StateHasChanged);
+
+        base.OnInitialized();
+    }
+
+    private bool dropdownVisible = false;
+
+    private string dropdownStyle => dropdownVisible ? "display:block;" : "display:none;";
+
+    private void ToggleDropdown()
+    {
+        dropdownVisible = !dropdownVisible;
+    }
+
+
+    private void SignOut()
+    {
+        state.ActiveUser = null;
+        state.ActiveShelter = null;
+        navigationManager.NavigateTo("/");
+    }
+}

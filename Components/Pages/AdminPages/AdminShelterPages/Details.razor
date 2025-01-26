@@ -1,0 +1,58 @@
+﻿@page "/admin/shelters/details"
+@using Microsoft.EntityFrameworkCore
+@using CanineConnect.Models
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Shelter</h2>
+    <hr />
+    @if (shelter is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">ShelterName</dt>
+            <dd class="col-sm-10">@shelter.ShelterName</dd>
+            <dt class="col-sm-2">Description</dt>
+            <dd class="col-sm-10">@shelter.Description</dd>
+            <dt class="col-sm-2">FacebookURL</dt>
+            <dd class="col-sm-10">@shelter.FacebookURL</dd>
+            <dt class="col-sm-2">InstagramURL</dt>
+            <dd class="col-sm-10">@shelter.InstagramURL</dd>
+            <dt class="col-sm-2">TwitterURL</dt>
+            <dd class="col-sm-10">@shelter.TwitterURL</dd>
+            <dt class="col-sm-2">WebsiteURL</dt>
+            <dd class="col-sm-10">@shelter.WebsiteURL</dd>
+            <dt class="col-sm-2">UserId</dt>
+            <dd class="col-sm-10">@shelter.UserId</dd>
+        </dl>
+        <div>
+            <a href="@($"/admin/shelters/edit?id={shelter.Id}")">Edit</a> |
+            <a href="@($"/admin/shelters")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Shelter? shelter;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        shelter = await context.Shelter.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (shelter is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

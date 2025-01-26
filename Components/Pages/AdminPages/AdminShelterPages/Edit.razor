@@ -1,0 +1,119 @@
+﻿@page "/admin/shelters/edit"
+@using Microsoft.EntityFrameworkCore
+@using CanineConnect.Models
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Shelter</h2>
+<hr />
+@if (Shelter is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Shelter" OnValidSubmit="UpdateShelter" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Shelter.Id" value="@Shelter.Id" />
+                <div class="mb-3">
+                    <label for="sheltername" class="form-label">ShelterName:</label>
+                    <InputText id="sheltername" @bind-Value="Shelter.ShelterName" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Shelter.ShelterName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description:</label>
+                    <InputText id="description" @bind-Value="Shelter.Description" class="form-control" />
+                    <ValidationMessage For="() => Shelter.Description" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="facebookurl" class="form-label">FacebookURL:</label>
+                    <InputText id="facebookurl" @bind-Value="Shelter.FacebookURL" class="form-control" />
+                    <ValidationMessage For="() => Shelter.FacebookURL" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="instagramurl" class="form-label">InstagramURL:</label>
+                    <InputText id="instagramurl" @bind-Value="Shelter.InstagramURL" class="form-control" />
+                    <ValidationMessage For="() => Shelter.InstagramURL" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="twitterurl" class="form-label">TwitterURL:</label>
+                    <InputText id="twitterurl" @bind-Value="Shelter.TwitterURL" class="form-control" />
+                    <ValidationMessage For="() => Shelter.TwitterURL" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="websiteurl" class="form-label">WebsiteURL:</label>
+                    <InputText id="websiteurl" @bind-Value="Shelter.WebsiteURL" class="form-control" />
+                    <ValidationMessage For="() => Shelter.WebsiteURL" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="userid" class="form-label">UserId:</label>
+                    <InputNumber id="userid" @bind-Value="Shelter.UserId" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Shelter.UserId" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/admin/shelters">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private Shelter? Shelter { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Shelter ??= await context.Shelter.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Shelter is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateShelter()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Shelter!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!ShelterExists(Shelter!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/admin/shelters");
+    }
+
+    private bool ShelterExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Shelter.Any(e => e.Id == id);
+    }
+}

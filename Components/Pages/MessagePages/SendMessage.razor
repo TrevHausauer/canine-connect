@@ -1,0 +1,78 @@
+﻿@page "/sendmessage/{UserID:int}"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using CanineConnect.Models
+@using CanineConnect.StateObjects
+@inject State state
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+@inject NavigationManager navigationManager
+
+<PageTitle>Send Message</PageTitle>
+
+<h3>Send Message</h3>
+
+@if (shelter is not null)
+{
+    <span>Sending to <a href="profile/shelter/@shelter.Id">@shelter.ShelterName</a></span>
+} else if (user is not null)
+{
+    <span>Sending to <a href="profile/user/@user.Id">@(user.FirstName + " " + user.LastName)</a></span>
+
+}
+
+<hr />
+
+<div class="row">
+    <EditForm Model="Message" OnValidSubmit="AddMessage" FormName="Create" Enhance>
+        <DataAnnotationsValidator />
+        <ValidationSummary class="text-danger" role="alert" />
+        <div class="mb-3">
+            <label for="text" class="form-label">Text:</label>
+            <InputText id="text" @bind-Value="Message.Text" class="form-control" aria-required="true" />
+            <ValidationMessage For="() => Message.Text" class="text-danger" />
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+    </EditForm>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    [Parameter]
+    public int? UserID { get; set; }
+
+    private User? user{ get; set; }
+    private Shelter? shelter { get; set; }
+    private Message Message { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        using (var context = DbFactory.CreateDbContext())
+        {
+            user = await context.User.Where(e => e.Id == UserID).FirstOrDefaultAsync();
+
+            if (user is null)
+            {
+                navigationManager.NavigateTo("pagenotfound");
+            }
+
+            shelter = await context.Shelter.Where(e => e.UserId == user.Id).FirstOrDefaultAsync();
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task AddMessage()
+    {
+        using (var context = DbFactory.CreateDbContext())
+        {
+            Message.SenderId = state.ActiveUser.Id;
+            Message.ReceiverId = user.Id;
+            Message.Timestamp = DateTime.Now;
+
+            context.Message.Add(Message);
+            await context.SaveChangesAsync();
+        }
+
+        navigationManager.NavigateTo("/messages");
+    }
+}

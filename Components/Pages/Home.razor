@@ -1,0 +1,107 @@
+﻿@page "/"
+
+<PageTitle>Home</PageTitle>
+<style>
+    .short{
+        height: 800px;
+    }
+</style>
+
+<!-- Welcome Header -->
+<h1 class="display-4 text-center" style="font-size: 3rem; color:forestgreen; padding: 30px 10px;">Welcome to Canine Connect!</h1>
+
+<!-- Carousel -->
+<div id="mycarousel" class="carousel slide short" data-bs-ride="carousel" data-bs-interval="5000" style="border-style:solid">
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#mycarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#mycarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        <button type="button" data-bs-target="#mycarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    </div>
+    <div class="carousel-inner short">
+        <div class="carousel-item active short">
+            <img src="/Images/dog3.jpg" alt="slide1" class="d-block w-100 short">
+        </div>
+        <div class="carousel-item short">
+            <img src="Images/volunteer.jpg" alt="slide2" class="d-block w-100 short">
+        </div>
+        <div class="carousel-item short">
+            <img src="Images/dog2b.jpg" alt="slide3" class="d-block w-100 short">
+        </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#mycarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#mycarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+
+<!-- Starting Header -->
+<div class="hero jumbotron text-center text-white" style="padding: 80px 20px;">
+    <div class="container">
+        <h2 class="display-4" style="font-size: 3rem; color:forestgreen">Your New Best Friend Awaits</h2>
+        <p class="lead" style="font-size: 1.5rem; color:black">Adopt a dog and make a difference in their life and yours. Find your perfect companion today!</p>
+        <a class="btn btn-forestgreen p-2" style="font-size: 1.5rem" href="doglistings">Explore Available Dogs</a>
+    </div>
+</div>
+
+<!-- Login Info -->
+<section class="py-5 bg-light" style="padding: 60px 20px;background-color: darkgray">
+    <div class="container text-center">
+		<h2 class="display-4" style="font-size: 2.5rem; color: forestgreen">Want to Adopt?</h2>
+        <p class="lead" style="font-size: 1.2rem;">Canine Connect is dedicated to helping rescue dogs find loving homes. We connect adopters with dogs of all breeds, sizes, and ages to create lasting relationships. If you want to adopt today you first will have to make an account. Then you can decide which furry friend you would like to help, and begin the application process.</p>
+        <a class="btn btn-forestgreen p-2" style="font-size: 1.5rem" href="/signup/user">Get Started!</a>
+    </div>
+</section>
+
+<!--  Meet the Team Stuff -->
+<div class="py-5" style="padding: 60px 20px;">
+    <div class="container text-center">
+        <h2 class="display-4 mb-4" style="font-size: 2.5rem; color: forestgreen">Meet Our Team</h2>
+        <div class="row">
+            <!-- Team Member 1 -->
+            <div class="col-md-3 mb-4">
+                <div class="card" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                    <img src="/Images/Daniel.jpg" class="card-img-top" alt="Daniel" style="height: 250px; object-fit: cover; border-radius: 8px;">
+                    <div class="card-body">
+                        <h5 class="card-title" style="font-size: 1.5rem;">Daniel</h5>
+                        <p class="card-text" style="font-size: 1rem;">Computer Science Major | 20 Years Old</p>           
+                    </div>
+                </div>
+            </div>
+            <!-- Team Member 2 -->
+            <div class="col-md-3 mb-4">
+                <div class="card" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                    <img src="/Images/Karsten.png" class="card-img-top" alt="Karsten" style="height: 250px; object-fit: cover; border-radius: 8px;">
+                    <div class="card-body">
+                        <h5 class="card-title" style="font-size: 1.5rem;">Karsten</h5>
+                        <p class="card-text" style="font-size: 1rem;">Computer Science Major | 20 Years Old</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Team Member 3 -->
+            <div class="col-md-3 mb-4">
+                <div class="card" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                    <img src="/Images/Trev.jpg" class="card-img-top" alt="Trev" style="height: 250px; object-fit: cover; border-radius: 8px;">
+                    <div class="card-body">
+                        <h5 class="card-title" style="font-size: 1.5rem;">Trev</h5>
+                        <p class="card-text" style="font-size: 1rem;">Computer Science Major | 22 Years Old</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Team Member 4 -->
+            <div class="col-md-3 mb-4">
+                <div class="card" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                    <img src="/Images/Nashat.jpg" class="card-img-top" alt="Nashat" style="height: 250px; object-fit: cover; border-radius: 8px;">
+                    <div class="card-body">
+                        <h5 class="card-title" style="font-size: 1.5rem;">Nashat</h5>
+                        <p class="card-text" style="font-size: 1rem;">Computer Science Major | 23 Years Old</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

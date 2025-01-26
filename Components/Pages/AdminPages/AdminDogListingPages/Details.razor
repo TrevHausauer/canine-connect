@@ -1,0 +1,62 @@
+﻿@page "/admin/doglistings/details"
+@using Microsoft.EntityFrameworkCore
+@using CanineConnect.Models
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>DogListing</h2>
+    <hr />
+    @if (doglisting is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Name</dt>
+            <dd class="col-sm-10">@doglisting.Name</dd>
+            <dt class="col-sm-2">Sex</dt>
+            <dd class="col-sm-10">@doglisting.Sex</dd>
+            <dt class="col-sm-2">Weight</dt>
+            <dd class="col-sm-10">@doglisting.Weight</dd>
+            <dt class="col-sm-2">Breed</dt>
+            <dd class="col-sm-10">@doglisting.Breed</dd>
+            <dt class="col-sm-2">Age</dt>
+            <dd class="col-sm-10">@doglisting.Age</dd>
+            <dt class="col-sm-2">Avaliable</dt>
+            <dd class="col-sm-10">@doglisting.Avaliable</dd>
+            <dt class="col-sm-2">Description</dt>
+            <dd class="col-sm-10">@doglisting.Description</dd>
+            <dt class="col-sm-2">ThumbnailImage</dt>
+            <dd class="col-sm-10">@doglisting.ThumbnailImage</dd>
+            <dt class="col-sm-2">ShelterId</dt>
+            <dd class="col-sm-10">@doglisting.ShelterId</dd>
+        </dl>
+        <div>
+            <a href="@($"/admin/doglistings/edit?id={doglisting.Id}")">Edit</a> |
+            <a href="@($"/admin/doglistings")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private DogListing? doglisting;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        doglisting = await context.DogListing.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (doglisting is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

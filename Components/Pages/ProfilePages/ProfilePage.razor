@@ -1,0 +1,82 @@
+﻿@page "/profile/user/{UserID:int}"
+
+@using CanineConnect.Data
+@using Models
+@using StateObjects
+@using Microsoft.EntityFrameworkCore
+
+@inject IDbContextFactory<CanineConnectContext> DbContextFactory
+@inject State state
+
+<PageTitle>Profile</PageTitle>
+
+<h3 class="text-center text-forestgreen">User Profile</h3>
+
+<div class="container mx-auto md-col-8">
+    @if (user is not null)
+    {
+        <h3>@name</h3>
+
+        <hr />
+
+        <h4>Personal Information</h4>
+        <ul>
+            <li>Email: @user.Email</li>
+            <li>Phone: @(user.Phone ?? "No Phone Provided")</li>
+            <li>Date of Birth: @user.Age.ToString("MMMM dd, yyyy")</li>
+        </ul>
+        <br />
+        <h4>Address Information</h4>
+        <ul>
+            <li>Street: @user.HomeAddress?.Street</li>
+            <li>City: @user.HomeAddress?.City</li>
+            <li>State: @user.HomeAddress?.State</li>
+            <li>Country: @user.HomeAddress?.Country</li>
+            <li>Postal Code: @user.HomeAddress?.PostalCode</li>
+            <li>Country: @user.HomeAddress?.Country</li>
+        </ul>
+    }
+    else
+    {
+        <h3>Profile Not Loaded</h3>
+    }
+</div>
+<br />
+@code {
+    [SupplyParameterFromQuery]
+    [Parameter]
+    public int? UserID { get; set; }
+
+    private User? user;
+    private string? name = null;
+    private bool activeUser = false;
+    private bool adminPage = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        using (var context = await DbContextFactory.CreateDbContextAsync())
+        {
+            user = await context.User
+                .Where(e => e.Id == UserID)
+                .Include(e => e.HomeAddress)
+                .FirstOrDefaultAsync();
+
+            if (user is not null)
+            {
+                if (user.Email == "admin")
+                {
+                    activeUser = true;
+                    adminPage = true;
+                }
+                else
+                {
+                    name = user.FirstName + " " + user.LastName;
+                    activeUser = (state.IsUser()) ? user.Id == state?.ActiveUser?.Id : false;
+                }
+            }
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+}

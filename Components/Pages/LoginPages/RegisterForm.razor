@@ -1,0 +1,90 @@
+﻿@rendermode InteractiveServer
+
+@using CanineConnect.Data
+@using CanineConnect.Models
+@using CanineConnect.StateObjects
+@using Microsoft.EntityFrameworkCore
+
+@inject NavigationManager NavigationManager
+@inject IDbContextFactory<CanineConnectContext> DbContextFactory
+@inject State state
+
+<div class="container">
+    <form>
+        <div class="card">
+            <EditForm class="card-body" method="post" Model="user" OnValidSubmit="HandleRegister" FormName="create" Enhance>
+                <DataAnnotationsValidator />
+                <AddressForm EditableAddress="user.HomeAddress" />
+                <UserForm user="user" />
+                <CredentialForm user="user" />
+
+                <!-- Submit button -->
+                <button type="submit" class="btn btn-primary">Register</button>
+            </EditForm>
+        </div>
+
+        <!--Sign in error message-->
+        @if (errorMsg != null)
+        {
+            <div class="alert alert-warning" role="alert">
+                @errorMsg
+            </div>
+        }
+
+        <!-- Register buttons -->
+        <div class="text-center mt-4">
+            <p>Already a member? <a href="/login">Login</a></p>
+            <p>Registering a shelter? <a href="/signup/shelter">Shelter Register</a></p>
+        </div>
+    </form>
+</div>
+
+@code {
+    [Parameter]
+    public string? redirect { get; set; }
+
+    [Parameter, EditorRequired]
+    public User? user { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        if (user?.HomeAddress is null)
+        {
+            user.HomeAddress = new Address();
+        }
+
+        if (user.Age.Year == 1)
+        {
+            user.Age = new DateOnly(2000, 1, 1);
+        }
+
+        return base.OnInitializedAsync();
+    }
+
+    string? errorMsg;
+
+    private async Task HandleRegister()
+    {
+        Authentication authentication = new Authentication(DbContextFactory);
+
+        try
+        {
+            await authentication.RegisterUser(user);
+            state.ActiveUser = user;
+            errorMsg = null;
+
+            if (redirect is not null)
+            {
+                NavigationManager.NavigateTo(redirect);
+            }
+        }
+        catch (ArgumentException ex)
+        {
+            errorMsg = ex.Message.ToString();
+        }
+        catch (Exception ex)
+        {
+            errorMsg = "System Error";
+        }
+    }
+}

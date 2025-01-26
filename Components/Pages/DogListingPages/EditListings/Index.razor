@@ -1,0 +1,51 @@
+﻿@page "/doglistings/index"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using CanineConnect.Models
+@using CanineConnect.Data
+@using StateObjects
+@inject State state
+@implements IAsyncDisposable
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+
+<PageTitle>Your Dog Listings</PageTitle>
+
+<h1 class="text-success text-center mb-2">Your Posted Dog Listings</h1>
+
+<p>
+    <a href="doglistings/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="dogs">
+    <PropertyColumn Property="doglisting => doglisting.Name" />
+    <PropertyColumn Property="doglisting => doglisting.Sex" />
+    <PropertyColumn Property="doglisting => doglisting.Weight" />
+    <PropertyColumn Property="doglisting => doglisting.Breed" />
+    <PropertyColumn Property="doglisting => doglisting.Age" />
+    <PropertyColumn Property="doglisting => doglisting.Avaliable" />
+    <PropertyColumn Property="doglisting => doglisting.Description" />
+    <PropertyColumn Property="doglisting => doglisting.ThumbnailImage" />
+    <PropertyColumn Property="doglisting => doglisting.ShelterId" />
+
+    <TemplateColumn Context="doglisting">
+        <a href="@($"doglistings/edit?id={doglisting.Id}")">Edit</a> |
+        <a href="@($"doglistings/details?id={doglisting.Id}")">Details</a> |
+        <a href="@($"doglistings/delete?id={doglisting.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private CanineConnectContext context = default!;
+    private IQueryable<DogListing> dogs = default!;
+
+    protected override Task OnInitializedAsync()
+    {
+        context = DbFactory.CreateDbContext();
+        dogs = context.DogListing.Where(e => e.ShelterId == state.ActiveShelter.Id);
+
+        return base.OnInitializedAsync();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

@@ -1,0 +1,109 @@
+﻿@page "/applications/edit"
+@using Microsoft.EntityFrameworkCore
+@using CanineConnect.Models
+@using StateObjects
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+@inject NavigationManager NavigationManager
+@inject State state
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Application</h2>
+<hr />
+@if (Application is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Application" OnValidSubmit="UpdateApplication" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert" />
+                <input type="hidden" name="Application.Id" value="@Application.Id" />
+                @if (state.IsShelter())
+                {
+                    <div class="mb-3">
+                        <label for="approved" class="form-label">Approved:</label>
+                        <InputCheckbox id="approved" @bind-Value="Application.Approved" class="form-check-input" aria-required="true" />
+                        <ValidationMessage For="() => Application.Approved" class="text-danger" />
+                    </div>
+                }
+                <div class="mb-3">
+                    <label for="salary" class="form-label">salary:</label>
+                    <InputNumber id="salary" @bind-Value="Application.Salary" class="form-control" />
+                    <ValidationMessage For="() => Application.Salary" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="numb_of_animals" class="form-label">Number of Pets:</label>
+                    <InputNumber id="numb_of_animals" @bind-Value="Application.Animals" class="form-control" />
+                    <ValidationMessage For="() => Application.Animals" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="dependents" class="form-label">Dependents:</label>
+                    <InputNumber id="dependents" @bind-Value="Application.DogListing" class="form-control" />
+                    <ValidationMessage For="() => Application.Dependents" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/applications">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private Application? Application { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Application ??= await context.Application.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Application is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateApplication()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Application!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!ApplicationExists(Application!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/applications");
+    }
+
+    private bool ApplicationExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Application.Any(e => e.Id == id);
+    }
+}

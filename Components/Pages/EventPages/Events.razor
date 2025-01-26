@@ -1,0 +1,53 @@
+﻿@rendermode InteractiveServer
+@page "/events"
+
+@using CanineConnect.StateObjects
+@inject State state
+@using CanineConnect.Data
+@using Models
+@using Microsoft.EntityFrameworkCore
+
+@inject IDbContextFactory<CanineConnectContext> DbContextFactory
+@if (state.IsUser() && @state.IsShelter())
+{
+    <div style="padding-top: 20px;padding-right: 20px; float: right">
+        <a class="btn btn-forestgreen p-2" style="font-size: 1.5rem;" href="/events/index">My Events</a>
+    </div>
+}
+
+<PageTitle>Events</PageTitle>
+<br />
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2 class="text-success text-center mb-2">Upcoming Events</h2>
+
+            <div class="d-grid gap-3">
+                @foreach (EventPost e in _events)
+                {
+                    <EventCard ScheduledEvent="@e" />
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+
+@code {
+    List<EventPost> _events = new List<EventPost>();
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        using (var context = DbContextFactory.CreateDbContext())
+        {
+            _events = await context.Event
+                .OrderBy(e => e.Date)
+                .Include(e => e.Host)
+                .Include(e => e.Location)
+                .ToListAsync();
+        }
+
+        await base.OnInitializedAsync();
+    }
+}

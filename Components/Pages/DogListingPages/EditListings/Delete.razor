@@ -1,0 +1,75 @@
+﻿@rendermode InteractiveServer
+@page "/doglistings/delete"
+@using Microsoft.EntityFrameworkCore
+@using CanineConnect.Models
+@using CanineConnect.Components.Pages.LoginPages
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+@inject NavigationManager NavigationManager
+@inject State state
+@using CanineConnect.StateObjects
+
+<br />
+<h2 class="text-success text-center mb-2">Delete Dog Listing</h2>
+
+@if (doglisting == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Are you sure you want to delete this listing?</h5>
+            <p><strong>Name:</strong> @doglisting.Name</p>
+            <p><strong>Sex:</strong> @doglisting.Sex</p>
+            <p><strong>Weight:</strong> @doglisting.Weight kg</p>
+            <p><strong>Breed:</strong> @doglisting.Breed</p>
+            <p><strong>Age:</strong> @doglisting.Age</p>
+            <p><strong>Available:</strong> @(doglisting.Avaliable ? "Yes" : "No")</p>
+            <p><strong>Description:</strong> @doglisting.Description</p>
+
+            <button class="btn btn-danger" @onclick="DeleteDogListing">Delete</button>
+            <button class="btn btn-secondary" href="/doglistings/index">Cancel</button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private DogListing? doglisting;
+
+    List<DogListing> _dogs = new List<DogListing>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        using (var context = DbFactory.CreateDbContext())
+        {
+            _dogs = await context.DogListing
+                .OrderBy(d => d.Name)
+                .Include(d => d.Sex)
+                .Include(d => d.Weight)
+                .Include(d => d.Breed)
+                .Include(d => d.Age)
+                .Include(d => d.Avaliable)
+                .Include(d => d.Description)
+                .ToListAsync();
+
+            doglisting = await context.DogListing.FirstOrDefaultAsync(l => l.Id == Id);
+        };
+
+        if (doglisting is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private async Task DeleteDogListing()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.DogListing.Remove(doglisting!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/doglistings/index");
+    }
+}

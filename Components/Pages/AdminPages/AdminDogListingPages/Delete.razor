@@ -1,0 +1,87 @@
+﻿@page "/admin/doglistings/delete"
+@using Microsoft.EntityFrameworkCore
+@using CanineConnect.Models
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Delete</h1>
+
+<p>Are you sure you want to delete this?</p>
+<div>
+    <h2>DogListing</h2>
+    <hr />
+    @if (doglisting is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Name</dt>
+            <dd class="col-sm-10">@doglisting.Name</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Sex</dt>
+            <dd class="col-sm-10">@doglisting.Sex</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Weight</dt>
+            <dd class="col-sm-10">@doglisting.Weight</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Breed</dt>
+            <dd class="col-sm-10">@doglisting.Breed</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Age</dt>
+            <dd class="col-sm-10">@doglisting.Age</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Avaliable</dt>
+            <dd class="col-sm-10">@doglisting.Avaliable</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Description</dt>
+            <dd class="col-sm-10">@doglisting.Description</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">ThumbnailImage</dt>
+            <dd class="col-sm-10">@doglisting.ThumbnailImage</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">ShelterId</dt>
+            <dd class="col-sm-10">@doglisting.ShelterId</dd>
+        </dl>
+        <EditForm method="post" Model="doglisting" OnValidSubmit="DeleteDogListing" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(doglisting is null)">Delete</button> |
+            <a href="/doglistings">Back to List</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private DogListing? doglisting;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        doglisting = await context.DogListing.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (doglisting is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private async Task DeleteDogListing()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.DogListing.Remove(doglisting!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/admin/doglistings");
+    }
+}

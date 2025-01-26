@@ -1,0 +1,103 @@
+﻿@rendermode InteractiveServer
+@page "/events/delete"
+@using Microsoft.EntityFrameworkCore
+@using CanineConnect.Models
+@inject IDbContextFactory<CanineConnect.Data.CanineConnectContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Delete</PageTitle>
+<div style="padding: 20px">
+    <h1 >Delete</h1>
+    <br />
+    <p>Are you sure you want to delete this?</p>
+    <div>
+        <h2 style="color: forestgreen">EventPost</h2>
+        <hr />
+        @if (eventpost is null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else {
+            <dl class="row">
+                <dt class="col-sm-2">Name</dt>
+                <dd class="col-sm-10">@eventpost.Name</dd>
+            </dl>
+            <dl class="row">
+                <dt class="col-sm-2">Date</dt>
+                <dd class="col-sm-10">@eventpost.Date</dd>
+            </dl>
+            <dl class="row">
+                <dt class="col-sm-2">Time</dt>
+                <dd class="col-sm-10">@eventpost.Time</dd>
+            </dl>
+            <dl class="row">
+                <dt class="col-sm-2">Description</dt>
+                <dd class="col-sm-10">@eventpost.Description</dd>
+            </dl>
+            <dl class="row">
+                <dt class="col-sm-2">Location</dt>
+                <dd class="col-sm-10">@LocationToString(eventpost.Location)</dd>
+            </dl>
+            <dl class="row">
+                <dt class="col-sm-2">Host</dt>
+                <dd class="col-sm-10">@hostToString(eventpost.Host)</dd>
+            </dl>
+            <EditForm method="post" Model="eventpost" OnValidSubmit="DeleteEventPost" FormName="delete" Enhance>
+                <button type="submit" class="btn btn-danger" disabled="@(eventpost is null)">Delete</button> |
+                <a href="/events/index">Back to List</a>
+            </EditForm>
+        }
+    </div>
+</div>
+@code {
+    private EventPost? eventpost;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    List<EventPost> _events = new List<EventPost>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        using (var context = DbFactory.CreateDbContext())
+        { 
+            _events = await context.Event
+                .OrderBy(e => e.Date)
+                .Include(e => e.Host)
+                .Include(e => e.Location)
+                .ToListAsync();
+
+            eventpost = await context.Event.FirstOrDefaultAsync(m => m.Id == Id);
+        };
+
+        
+
+        if (eventpost is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+   
+    private async Task DeleteEventPost()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Event.Remove(eventpost!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/events/index");
+    }
+
+    protected string LocationToString(Address address)
+    {
+        string location = $"{address.Street}, {address.City}, {address.State}, {address.PostalCode} {address.Country}";
+
+        return location;
+    }
+
+    protected string hostToString(Shelter shelter)
+    {
+
+        string host = shelter.ShelterName;
+
+        return host;
+    }
+}
