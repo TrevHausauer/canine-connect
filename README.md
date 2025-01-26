@@ -1,5 +1,7 @@
 # CanineConnect
 
+#AlSO CONTRIBUTED BY KARSTEN LARSON, DANIEL PUTNAM, AND NASHAT KHAN
+
 ## How to Reset a Database's Migrations
 
 ### Delete the Migrations Folder
